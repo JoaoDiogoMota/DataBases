@@ -1,0 +1,91 @@
+// Create Atleta
+LOAD CSV WITH HEADERS FROM "file:///atleta.csv" AS LINE 
+CREATE (a:Atleta)
+SET a = LINE;
+
+// Create Atleta_has_Modaldidade
+LOAD CSV WITH HEADERS FROM "file:///Atleta_has_Modalidade.csv" AS LINE 
+CREATE (am:Atleta_has_Modaldidade)
+SET am = LINE;
+
+// Create Modalidade
+LOAD CSV WITH HEADERS FROM "file:///Modalidade.csv" AS LINE 
+CREATE (m:Modalidade)
+SET m = LINE;
+
+// Create Categoria
+LOAD CSV WITH HEADERS FROM "file:///Categoria.csv" AS LINE 
+CREATE (c:Categoria)
+SET c = LINE;
+
+// Create Teste_Clinico
+LOAD CSV WITH HEADERS FROM "file:///Teste_Clinico.csv" AS LINE 
+CREATE (tc:Teste_Clinico)
+SET tc = LINE;
+
+// Create Profissional_de_Saude
+LOAD CSV WITH HEADERS FROM "file:///Profissional_de_Saude.csv" AS LINE 
+CREATE (ps:Profissional_de_Saude)
+SET ps = LINE;
+
+// Create Especialidade
+LOAD CSV WITH HEADERS FROM "file:///Especialidade.csv" AS LINE 
+CREATE (e:Especialidade)
+SET e= LINE;
+
+
+MATCH (tc:Teste_Clinico),(a:Atleta)
+WHERE tc.Atleta_CC = a.CC
+CREATE (a)-[r:Realiza]->(tc)
+RETURN tc,a;
+
+MATCH (a:Atleta),(c:Categoria)
+WHERE a.Categoria_id_Categoria = c.Id_Categoria
+CREATE (a)-[r:Pertence]->(c)
+RETURN a,c;
+
+MATCH (ps:Profissional_de_Saude),(e:Especialidade)
+WHERE ps.Especialidade_id_Especialidade = e.Id_Especialidade
+CREATE (ps)-[r:Tem]->(e)
+RETURN ps,e;
+
+MATCH (tc:Teste_Clinico),(ps:Profissional_de_Saude)
+WHERE tc.PS_id_PS = ps.Id_PS
+CREATE (tc)-[r:Dirigido]->(ps)
+RETURN tc,ps;
+
+MATCH (a:Atleta),(ahm:Atleta_has_Modaldidade),(m:Modalidade)
+WHERE a.CC=ahm.Atleta_CC AND ahm.Modalidade_id_Modalidade=m.Id_Modalidade
+CREATE (a)-[r:Pratica]->(m), (m)-[r1:E_Praticada]->(a)
+RETURN a,m;
+
+// ***********+ QUERIES *************
+
+// Query que apresenta os atletas com aptidão=1
+MATCH(A:Atleta)
+WHERE A.Aptidao="1"
+RETURN A;
+
+// Query que apresenta os testes_Clinicos que cada Atleta não obteve aptidão positiva
+MATCH(A:Atleta)-[:Realiza]->(tc:Teste_Clinico) 
+WHERE tc.Aptidao="0" 
+RETURN A,tc;
+
+//Query que apresenta os testes clinicos concluidos , e respetivos profissionais de saude que os dirigem, de uma determinada especialidade. No exemplo Especialidade = 3
+MATCH(tc:Teste_Clinico)-[:Dirigido]->(ps:Profissional_de_Saude)-[:Tem]->(e:Especialidade)
+WHERE e.Id_Especialidade="3" AND tc.Estado='Concluido'
+RETURN tc,ps,e;
+
+//Query que apresenta os testes clinicos marcados para um determinado profissional de saude(No exemplo Id_PS=9)
+MATCH(tc:Teste_Clinico)-[:Dirigido]->(ps:Profissional_de_Saude)-[:Tem]->(e:Especialidade)
+WHERE ps.Id_PS="9" AND tc.Estado='Marcado'
+RETURN tc,ps,e;
+
+
+//Query que apresenta os testes concluidos por um dado atleta (Neste cado CC=14649332) e os Profissionais de Saúde que os dirigiram
+MATCH(A:Atleta)-[:Realiza]->(tc:Teste_Clinico)-[:Dirigido]->(ps:Profissional_de_Saude)
+WHERE tc.Estado="Concluido" AND A.CC="14649332" 
+RETURN tc,A,ps;
+
+
+//Fazer delete: MATCH(n) DETACH DELETE n;
