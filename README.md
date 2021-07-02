@@ -2,7 +2,7 @@
 
 The purpose of this project is the development of a system for scheduling and carrying out clinical tests of athletes depending on several factors including the sport, category, club, type of clinical test to be carried out, among others considered relevant to the topic addressed. ([Technical report](https://github.com/JoaoDiogoMota/database-management/blob/master/Testes_Clinicos/BD-2019-TP6(G4).pdf))
 
-**Keywords**: Relational Databases, SQL, MySQL Workbench
+**Keywords**: Relational Databases, SQL, MySQL Workbench, Neo4J
  
 ## Collaborators
 
